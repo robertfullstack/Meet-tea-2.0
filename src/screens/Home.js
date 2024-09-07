@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { auth, storage, db } from '../firebase';
-
 import '../styles/Home.css';
 import IconSoloMeetTEA from '../icons/icon-solo-meet-tea.png';
 
@@ -14,6 +13,8 @@ const Home = (props) => {
     const [showChat, setShowChat] = useState(false); // Estado para controlar exibição do iframe
     const [currentPostId, setCurrentPostId] = useState(null); // ID do post atual para comentar
     const [commentText, setCommentText] = useState(""); // Texto do comentário
+
+    const navigate = useNavigate(); // Obtém a função de navegação
 
     useEffect(() => {
         if (openModalVisualizar) {
@@ -75,6 +76,7 @@ const Home = (props) => {
                             imageUrl: url,
                             timestamp: new Date(),
                             user: props.user,
+                            likes: 0, // Adiciona o campo de curtidas inicializado como 0
                         });
 
                         setProgress(0);
@@ -112,6 +114,16 @@ const Home = (props) => {
         }
     }
 
+    const handleLike = async (postId, currentLikes) => {
+        try {
+            await db.collection("posts").doc(postId).update({
+                likes: currentLikes + 1
+            });
+        } catch (error) {
+            console.error('Erro ao curtir a publicação:', error);
+        }
+    }
+
     return (
         <div className="container-home">
             <div className="header">
@@ -134,6 +146,9 @@ const Home = (props) => {
             </button>
             <button className="btn-post" onClick={handleOpenChat}>
                 {showChat ? 'Fechar' : 'Abrir'} Chat MEET TEA
+            </button>
+            <button className="btn-post" onClick={() => navigate('/profile')}>
+                Meu Perfil
             </button>
             <button className="btn-post" onClick={handleLogout}>Sair</button>
 
@@ -167,6 +182,8 @@ const Home = (props) => {
                             <img src={post.imageUrl} alt={post.title} width="100%" />
                             <p>{post.description}</p>
                             <p>Usuário: <strong>{post.user}</strong></p>
+                            <p>Curtidas: {post.likes || 0}</p>
+                            <button onClick={() => handleLike(id, post.likes || 0)}>Curtir</button>
                             <button onClick={() => setCurrentPostId(currentPostId === id ? null : id)}>
                                 {currentPostId === id ? 'Fechar Comentários' : 'Comentar'}
                             </button>
@@ -185,7 +202,6 @@ const Home = (props) => {
                                         placeholder="Escreva um comentário..."
                                     ></textarea>
                                     <button onClick={() => handleCommentSubmit(id)}>Comentar</button>
-
                                 </div>
                             )}
                         </div>
