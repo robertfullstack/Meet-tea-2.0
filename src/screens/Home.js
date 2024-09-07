@@ -7,14 +7,20 @@ import IconSoloMeetTEA from '../icons/icon-solo-meet-tea.png';
 const Home = (props) => {
     const [openModalPublicar, setOpenModalPublicar] = useState(false);
     const [openModalVisualizar, setOpenModalVisualizar] = useState(false);
+    const [openModalPerfis, setOpenModalPerfis] = useState(false);
     const [progress, setProgress] = useState(0);
     const [file, setFile] = useState(null);
     const [posts, setPosts] = useState([]);
-    const [showChat, setShowChat] = useState(false); // Estado para controlar exibição do iframe
-    const [currentPostId, setCurrentPostId] = useState(null); // ID do post atual para comentar
-    const [commentText, setCommentText] = useState(""); // Texto do comentário
+    const [profiles, setProfiles] = useState([]);
+    const [filteredProfiles, setFilteredProfiles] = useState([]);
+    const [showChat, setShowChat] = useState(false);
+    const [currentPostId, setCurrentPostId] = useState(null);
+    const [commentText, setCommentText] = useState("");
+    const [filter, setFilter] = useState("");
+    const [ageFilter, setAgeFilter] = useState(""); // Novo estado para idade
+    const [genderFilter, setGenderFilter] = useState(""); // Novo estado para sexo
 
-    const navigate = useNavigate(); // Obtém a função de navegação
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (openModalVisualizar) {
@@ -36,6 +42,40 @@ const Home = (props) => {
             });
         }
     }, [openModalVisualizar]);
+
+    useEffect(() => {
+        if (openModalPerfis) {
+            db.collection("users").get().then(snapshot => {
+                const profilesData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setProfiles(profilesData);
+                setFilteredProfiles(profilesData); // Inicialmente, todos os perfis são exibidos
+            }).catch(error => {
+                console.error("Erro ao buscar perfis:", error);
+            });
+        }
+    }, [openModalPerfis]);
+
+    useEffect(() => {
+        // Filtra os perfis com base no critério de filtro
+        const filtered = profiles.filter(profile => {
+            const displayName = profile.displayName || ""; // Protege contra undefined
+            const email = profile.email || ""; // Protege contra undefined
+            const age = profile.age || ""; // Protege contra undefined
+            const gender = profile.gender || ""; // Protege contra undefined
+
+            const matchesNameOrEmail = displayName.toLowerCase().includes(filter.toLowerCase()) ||
+                email.toLowerCase().includes(filter.toLowerCase());
+
+            const matchesAge = ageFilter ? age.toString().includes(ageFilter) : true;
+            const matchesGender = genderFilter ? gender.toLowerCase() === genderFilter.toLowerCase() : true;
+
+            return matchesNameOrEmail && matchesAge && matchesGender;
+        });
+        setFilteredProfiles(filtered);
+    }, [filter, ageFilter, genderFilter, profiles]);
 
     if (!props.user) {
         return <Navigate to="/" />;
@@ -76,7 +116,7 @@ const Home = (props) => {
                             imageUrl: url,
                             timestamp: new Date(),
                             user: props.user,
-                            likes: 0, // Adiciona o campo de curtidas inicializado como 0
+                            likes: 0,
                         });
 
                         setProgress(0);
@@ -91,7 +131,7 @@ const Home = (props) => {
         auth.signOut()
             .then(() => {
                 console.log("Usuário deslogado com sucesso");
-                window.location.href = '/'; // Redireciona para a raiz
+                window.location.href = '/';
             })
             .catch((error) => {
                 console.error("Erro ao tentar deslogar:", error);
@@ -99,7 +139,7 @@ const Home = (props) => {
     };
 
     const handleOpenChat = () => {
-        setShowChat(!showChat); // Alternar estado para mostrar ou esconder o iframe
+        setShowChat(!showChat);
     };
 
     const handleCommentSubmit = (postId) => {
@@ -109,8 +149,8 @@ const Home = (props) => {
                 user: props.user,
                 timestamp: new Date()
             });
-            setCommentText(""); // Limpar o campo de comentário
-            setCurrentPostId(null); // Fechar a área de comentários
+            setCommentText("");
+            setCurrentPostId(null);
         }
     }
 
@@ -122,6 +162,10 @@ const Home = (props) => {
         } catch (error) {
             console.error('Erro ao curtir a publicação:', error);
         }
+    }
+
+    const handleProfileClick = (profileId) => {
+        navigate(`/profile/${profileId}`);
     }
 
     return (
@@ -143,6 +187,9 @@ const Home = (props) => {
             </button>
             <button className="btn-post" onClick={() => setOpenModalVisualizar(!openModalVisualizar)}>
                 {openModalVisualizar ? 'Fechar' : 'Visualizar'} Posts
+            </button>
+            <button className="btn-post" onClick={() => setOpenModalPerfis(!openModalPerfis)}>
+                {openModalPerfis ? 'Fechar' : 'Visualizar'} Perfis
             </button>
             <button className="btn-post" onClick={handleOpenChat}>
                 {showChat ? 'Fechar' : 'Abrir'} Chat MEET TEA
@@ -175,35 +222,75 @@ const Home = (props) => {
             }
 
             {openModalVisualizar &&
-                <div id="container-visualizar" className="modal-visualizar">
-                    {posts.map(({ id, post, comments }) => (
-                        <div key={id} className="post">
-                            <h3>{post.title}</h3>
-                            <img src={post.imageUrl} alt={post.title} width="100%" />
-                            <p>{post.description}</p>
-                            <p>Usuário: <strong>{post.user}</strong></p>
-                            <p>Curtidas: {post.likes || 0}</p>
-                            <button onClick={() => handleLike(id, post.likes || 0)}>Curtir</button>
-                            <button onClick={() => setCurrentPostId(currentPostId === id ? null : id)}>
-                                {currentPostId === id ? 'Fechar Comentários' : 'Comentar'}
+                <div id="container-posts" className="modal-posts">
+                    {posts.map((post) => (
+                        <div key={post.id} className="post">
+                            <h2>{post.post.title}</h2>
+                            <img src={post.post.imageUrl} alt={post.post.title} />
+                            <p>{post.post.description}</p>
+                            <button onClick={() => handleLike(post.id, post.post.likes)}>
+                                Curtir ({post.post.likes})
                             </button>
-                            <div className="comments-list">
-                                {comments.map(comment => (
+                            <div className="comments">
+                                <h3>Comentários:</h3>
+                                {post.comments.map(comment => (
                                     <div key={comment.id} className="comment">
-                                        <p><strong>{comment.user}</strong>: {comment.text}</p>
+                                        <p><strong>{comment.user}:</strong> {comment.text}</p>
                                     </div>
                                 ))}
+                                {currentPostId === post.id && (
+                                    <div className="comment-form">
+                                        <textarea
+                                            value={commentText}
+                                            onChange={(e) => setCommentText(e.target.value)}
+                                            placeholder="Escreva um comentário..."
+                                        />
+                                        <button onClick={() => handleCommentSubmit(post.id)}>Enviar</button>
+                                    </div>
+                                )}
+                                <button onClick={() => setCurrentPostId(post.id === currentPostId ? null : post.id)}>
+                                    {currentPostId === post.id ? 'Fechar' : 'Comentar'}
+                                </button>
                             </div>
-                            {currentPostId === id && (
-                                <div className="comments-section">
-                                    <textarea
-                                        value={commentText}
-                                        onChange={(e) => setCommentText(e.target.value)}
-                                        placeholder="Escreva um comentário..."
-                                    ></textarea>
-                                    <button onClick={() => handleCommentSubmit(id)}>Comentar</button>
-                                </div>
-                            )}
+                        </div>
+                    ))}
+                </div>
+            }
+
+            {openModalPerfis &&
+                <div id="container-perfis" className="modal-perfis">
+                    <div className="filter-controls">
+                        <label>Filtrar por Nome/Email:</label>
+                        <input
+                            type="text"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            placeholder="Filtrar por Nome ou Email"
+                        />
+
+                        <label>Filtrar por Idade:</label>
+                        <input
+                            type="text"
+                            value={ageFilter}
+                            onChange={(e) => setAgeFilter(e.target.value)}
+                            placeholder="Filtrar por Idade"
+                        />
+
+                        <label>Filtrar por Sexo:</label>
+                        <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)}>
+                            <option value="">Todos</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+
+                    {filteredProfiles.map(profile => (
+                        <div key={profile.id} className="profile" onClick={() => handleProfileClick(profile.id)}>
+                            <p><strong>Nome:</strong> {profile.displayName}</p>
+                            <p><strong>Email:</strong> {profile.email}</p>
+                            <p><strong>Idade:</strong> {profile.age}</p>
+                            <p><strong>Sexo:</strong> {profile.gender}</p>
                         </div>
                     ))}
                 </div>

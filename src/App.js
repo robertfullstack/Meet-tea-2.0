@@ -5,6 +5,7 @@ import LoginRegistro from "./screens/LoginRegistro";
 import Home from './screens/Home';
 import Admin from './screens/Admin';
 import Profile from './screens/Profile';
+import ProfileOutros from './screens/ProfileOutros';
 
 const App = () => {
   const [user, setUser] = useState();
@@ -53,7 +54,7 @@ const App = () => {
           <Route path="/home" element={<Home setUser={setUser} user={user} />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={<Profile setUser={setUser} user={user} />} />
-
+          <Route path="/profile/:id" element={<ProfileOutros setUser={setUser} user={user} />} />
         </Routes>
       </Router>
     </div>
@@ -61,6 +62,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
