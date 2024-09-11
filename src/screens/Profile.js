@@ -14,6 +14,21 @@ export const Profile = () => {
     });
     const user = auth.currentUser;
 
+    // Função para calcular a idade com base na data de nascimento
+    const calcularIdade = (birthDate) => {
+        const hoje = new Date();
+        const nascimento = new Date(birthDate);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mes = hoje.getMonth() - nascimento.getMonth();
+
+        // Verifica se o aniversário ainda não aconteceu neste ano
+        if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        return idade;
+    };
+
     useEffect(() => {
         if (user) {
             const fetchUserData = async () => {
@@ -129,7 +144,7 @@ export const Profile = () => {
                         <div>
                             <p><strong>Nome:</strong> {userData.displayName}</p>
                             <p><strong>Email:</strong> {userData.email}</p>
-                            <p><strong>Data de Nascimento:</strong> {userData.birthDate}</p>
+                            <p><strong>Idade:</strong> {calcularIdade(userData.birthDate)}</p> {/* Exibir idade aqui */}
                             <p><strong>Sexo:</strong> {userData.gender}</p>
                             <p><strong>Telefone:</strong> {userData.phone}</p>
                             <p><strong>Endereço:</strong> {userData.address}</p>

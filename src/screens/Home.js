@@ -19,9 +19,23 @@ const Home = (props) => {
     const [filter, setFilter] = useState("");
     const [ageFilter, setAgeFilter] = useState(""); // Novo estado para idade
     const [genderFilter, setGenderFilter] = useState(""); // Novo estado para sexo
-
     const navigate = useNavigate();
 
+    //calcula a idade com base na data de nascimento
+    const calcularIdade = (birthDate) => {
+        const hoje = new Date();
+        const nascimento = new Date(birthDate);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mes = hoje.getMonth() - nascimento.getMonth();
+
+        // Verifica se o aniversário ainda não aconteceu neste ano
+        if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        return idade;
+    };
+    
     useEffect(() => {
         if (openModalVisualizar) {
             db.collection("posts").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
@@ -59,19 +73,32 @@ const Home = (props) => {
     }, [openModalPerfis]);
 
     useEffect(() => {
-        // Filtra os perfis com base no critério de filtro
         const filtered = profiles.filter(profile => {
             const displayName = profile.displayName || ""; // Protege contra undefined
             const email = profile.email || ""; // Protege contra undefined
-            const age = profile.age || ""; // Protege contra undefined
+    
+            const calculateAge = (birthDate) => {
+                const birth = new Date(birthDate);
+                const today = new Date();
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDifference = today.getMonth() - birth.getMonth();
+    
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+    
+                return age;
+            };
+    
+            const age = profile.birthDate ? calculateAge(profile.birthDate) : ""; // Calcula a idade
             const gender = profile.gender || ""; // Protege contra undefined
-
+    
             const matchesNameOrEmail = displayName.toLowerCase().includes(filter.toLowerCase()) ||
                 email.toLowerCase().includes(filter.toLowerCase());
-
+    
             const matchesAge = ageFilter ? age.toString().includes(ageFilter) : true;
             const matchesGender = genderFilter ? gender.toLowerCase() === genderFilter.toLowerCase() : true;
-
+    
             return matchesNameOrEmail && matchesAge && matchesGender;
         });
         setFilteredProfiles(filtered);
@@ -226,7 +253,7 @@ const Home = (props) => {
                     {posts.map((post) => (
                         <div key={post.id} className="post">
                             <h2>{post.post.title}</h2>
-                            <img src={post.post.imageUrl} alt={post.post.title} />
+                            <img style={{width: '100%' }} src={post.post.imageUrl} alt={post.post.title} />
                             <p>{post.post.description}</p>
                             <button onClick={() => handleLike(post.id, post.post.likes)}>
                                 Curtir ({post.post.likes})
@@ -289,7 +316,7 @@ const Home = (props) => {
                         <div key={profile.id} className="profile" onClick={() => handleProfileClick(profile.id)}>
                             <p><strong>Nome:</strong> {profile.displayName}</p>
                             <p><strong>Email:</strong> {profile.email}</p>
-                            <p><strong>Idade:</strong> {profile.age}</p>
+                            <p><strong>Idade:</strong> {calcularIdade(profile.birthDate)}</p> 
                             <p><strong>Sexo:</strong> {profile.gender}</p>
                         </div>
                     ))}

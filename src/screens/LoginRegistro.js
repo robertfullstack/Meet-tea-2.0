@@ -14,18 +14,40 @@ const LoginRegistro = (props) => {
     const [resetEmail, setResetEmail] = useState("");
     const navigate = useNavigate();
 
+    const calcularIdade = (birthDate) => {
+        const hoje = new Date();
+        const nascimento = new Date(birthDate);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mes = hoje.getMonth() - nascimento.getMonth();
+
+        // Verifica se o aniversário ainda não aconteceu neste ano
+        if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+            idade--;
+        }
+
+        return idade;
+    };
+    
     const criarConta = async (e) => {
         e.preventDefault();
-
+    
         if (!aceitouTermos) {
             toast.error('Você precisa aceitar os termos para criar uma conta.');
+            return;
+        }
+    
+        let birthDate = document.getElementById("birthdate-cadastro").value;
+        let idade = calcularIdade(birthDate);
+    
+        // Verifica se o usuário é maior de idade (18 anos ou mais)
+        if (idade < 18) {
+            toast.error('Você precisa ser maior de idade para criar uma conta.');
             return;
         }
 
         let email = document.getElementById("email-cadastro").value;
         let password = document.getElementById("password-cadastro").value;
         let userName = document.getElementById("userName-cadastro").value;
-        let birthDate = document.getElementById("birthdate-cadastro").value;
         let gender = document.getElementById("gender-cadastro").value;
         let phone = document.getElementById("phone-cadastro").value;
         let address = document.getElementById("address-cadastro").value;
@@ -68,6 +90,8 @@ const LoginRegistro = (props) => {
                 address,
                 about,
                 fileURL,
+                birthDate,
+                idade,
                 profilePhotoURL, // Adicionando a URL da foto do perfil no banco de dados
             });
 
