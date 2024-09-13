@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import '../styles/logincadastro.css';
 import IconSoloMeetTEA from '../icons/icon-solo-meet-tea.png';
+import capa_meet_tea from '..img/capa_meet_tea.png';
 
 const LoginRegistro = (props) => {
     const [containerLogar, setContainerLogar] = useState(true);
@@ -178,7 +179,7 @@ const LoginRegistro = (props) => {
                                 onChange={(e) => setAceitouTermos(e.target.checked)}
                             />
                             <label htmlFor="aceitou-termos">
-                                Ao submeter esse formulário, declaro que li e entendi que o tratamento de dados pessoais será realizado nos termos da Política de Privacidade do Meet TEA
+                                Ao submeter esse formulário, declaro que li e entendi que o tratamento de dados pessoais será realizado nos termos da <a href="./screens/index.html">Política de Privacidade</a> do Meet TEA
                             </label>
                         </div>
                         <button onClick={(e) => criarConta(e)}>Registrar-se</button>
