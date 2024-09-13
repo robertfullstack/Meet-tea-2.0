@@ -179,7 +179,7 @@ const LoginRegistro = (props) => {
                                 onChange={(e) => setAceitouTermos(e.target.checked)}
                             />
                             <label htmlFor="aceitou-termos">
-                                Ao submeter esse formulário, declaro que li e entendi que o tratamento de dados pessoais será realizado nos termos da <a href="./screens/index.html">Política de Privacidade</a> do Meet TEA
+                                Ao submeter esse formulário, declaro que li e entendi que o tratamento de dados pessoais será realizado nos termos da <a href="./termos">Política de Privacidade</a> do Meet TEA
                             </label>
                         </div>
                         <button onClick={(e) => criarConta(e)}>Registrar-se</button>
