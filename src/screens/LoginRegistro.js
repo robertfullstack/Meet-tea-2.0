@@ -180,8 +180,8 @@ const LoginRegistro = (props) => {
                                 checked={aceitouTermos}
                                 onChange={(e) => setAceitouTermos(e.target.checked)}
                             />
-                            <Link to="/Termos">Política de Privacidade</link>
-                            <a href="index.js">Política de Privacidade</a>
+                            <a href="/termos-privacidade">Política de Privacidade</a>
+                            <a href="/termos-privacidade">Política de Privacidade</a>
                             <label htmlFor="aceitou-termos">
                                 Ao submeter esse formulário, declaro que li e entendi que o tratamento de dados pessoais será realizado nos termos de Política de Privacidade Meet TEA
                             </label>
