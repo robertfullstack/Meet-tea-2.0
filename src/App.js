@@ -6,6 +6,7 @@ import Home from './screens/Home';
 import Admin from './screens/Admin';
 import Profile from './screens/Profile';
 import ProfileOutros from './screens/ProfileOutros';
+import ProfileOutros from './screens/index.html';
 
 const App = () => {
   const [user, setUser] = useState();
