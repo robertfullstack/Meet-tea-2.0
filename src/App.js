@@ -6,7 +6,7 @@ import Home from './screens/Home';
 import Admin from './screens/Admin';
 import Profile from './screens/Profile';
 import ProfileOutros from './screens/ProfileOutros';
-import Termos from './screens/index.js';
+import TermosPrivacidade from './screens/TermosPrivacidade.js';
 
 const App = () => {
   const [user, setUser] = useState();
@@ -56,6 +56,7 @@ const App = () => {
           <Route path="/admin" element={<Admin />} />
           <Route path="/profile" element={<Profile setUser={setUser} user={user} />} />
           <Route path="/profile/:id" element={<ProfileOutros setUser={setUser} user={user} />} />
+          <Route path="/termos-privacidade" element={<TermosPrivacidade/>} />
         </Routes>
       </Router>
     </div>
