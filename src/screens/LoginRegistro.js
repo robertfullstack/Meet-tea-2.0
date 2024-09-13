@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import '../styles/logincadastro.css';
 import IconSoloMeetTEA from '../icons/icon-solo-meet-tea.png';
-import capa_meet_tea from '..img/capa_meet_tea.png';
+import capa_meet_tea from '../img/capa_meet_tea.png';
 
 const LoginRegistro = (props) => {
     const [containerLogar, setContainerLogar] = useState(true);
