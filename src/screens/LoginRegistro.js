@@ -173,7 +173,7 @@ const LoginRegistro = (props) => {
                         <input type="file" id="file-cadastro" />
                         <label>Foto do perfil</label>
                         <input type="file" id="profile-photo-cadastro" /> {/* Novo campo */}
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'block', alignItems: 'center' }}>
                             <input
                                 type="checkbox"
                                 id="aceitou-termos"
