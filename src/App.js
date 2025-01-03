@@ -7,6 +7,7 @@ import Admin from './screens/Admin';
 import Profile from './screens/Profile';
 import ProfileOutros from './screens/ProfileOutros';
 import TermosPrivacidade from './screens/TermosPrivacidade.js';
+import NovoAnki from ./screens/NovoAnki.js';
 
 const App = () => {
   const [user, setUser] = useState();
@@ -57,6 +58,7 @@ const App = () => {
           <Route path="/profile" element={<Profile setUser={setUser} user={user} />} />
           <Route path="/profile/:id" element={<ProfileOutros setUser={setUser} user={user} />} />
           <Route path="/termos-privacidade" element={<TermosPrivacidade/>} />
+          <Route path="/novoanki" element={<NovoAnki/>} />
         </Routes>
       </Router>
     </div>
